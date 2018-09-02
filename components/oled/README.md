@@ -1,7 +1,11 @@
 # OLED(SSD1306) Library
 
-> test passed with 0.96' oled
+> test passed with 0.96' oled on esp32
 
+## Source File
+
+- [header file](/include/OLED.h)
+- [source file](/OLED.cpp)
 
 ## Basic
 
@@ -118,7 +122,7 @@ void drawCircle(int16_t x0, int16_t y0, uint8_t radius, bool update = true);
 void drawFilledCircle(int16_t x0, int16_t y0, uint8_t radius, drawMode mode = NORMAL, bool update = true);
 ```
 
-## Basic test operations
+## Basic text operations
 
 ```c++
 /******       Basic test operations       ******/
@@ -138,7 +142,7 @@ void setPrintfArea(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_en
 // this function realizd basic "printf", you can "%d", "%f", "%c", "%s"
 void printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
 
-// clear printfClear and reset cursor
+// clear printf area and reset cursor
 void printfClear();
 ```
 
