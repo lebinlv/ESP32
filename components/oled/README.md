@@ -4,8 +4,8 @@
 
 ## Source File
 
-- [header file](/include/OLED.h)
-- [source file](/OLED.cpp)
+- [header file](https://github.com/lebinlv/ESP32/blob/master/components/oled/include/OLED.h)
+- [source file](https://github.com/lebinlv/ESP32/blob/master/components/oled/OLED.cpp)
 
 ## Basic
 
