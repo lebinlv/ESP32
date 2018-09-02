@@ -2,7 +2,7 @@
 #define OLED_I2C_H_
 
 #include "driver/gpio.h"
-#include "fonts/OLEDDisplayFonts.h"
+#include "fonts/ArialMT_Plain_10.h"
 
 #ifndef MIN
 #define MIN(A, B) (A)<=(B)?(A):(B)
@@ -48,8 +48,18 @@ struct Display_Buffer
     uint8_t *GRAM;         // pointer, point to display buffer
     uint8_t column_start;  // the start column of modified data, 0<=column_start<128
     uint8_t column_end;    // the end column of modified data, column_start<=column_end<128
-    uint8_t page_start;    // the start page of modified data, 0<=page_start<8
-    uint8_t page_end;      // the end page of modified data, page_start<=page_end<8
+    uint8_t row_start;    // the start page of modified data, 0<=page_start<8
+    uint8_t row_end;      // the end page of modified data, page_start<=page_end<8
+};
+
+struct OLED_printf_t
+{
+    uint8_t x_start;
+    uint8_t x_end;
+    uint8_t y_start;
+    uint8_t y_end;
+    uint8_t x_cursor;
+    uint8_t y_cursor;
 };
 #endif
 
@@ -59,19 +69,21 @@ private:
     static const uint8_t OLED_WIDTH = 128;              // screen width
     static const uint8_t OLED_HEIGHT = 64;              // screen height
 
-    enum {DELAY_600_NS = 120, DELAY_1_3_US = 240};      //used to control delay;
-
     gpio_num_t SCL_pin;
     gpio_num_t SDA_pin;
     gpio_num_t RST_pin;
 
-    //uint8_t temp[1024];     // display data buffer;
     uint8_t device_address; // device address, 0x78 in default;
 
     Display_Buffer buffer;
     uint8_t *GRAM_bk;
+    OLED_printf_t printfStruct;
 
+    // varibles about font
     const uint8_t *fontData;
+    uint8_t textHeight;
+    uint8_t firstChar;
+    uint16_t charNum;
 
     /******      HardWare Operate Function      ******/
     void I2C_Start();                   // send I2C start signal and address byte
@@ -98,10 +110,10 @@ private:
         WriteByte(endAddr);
         I2C_Stop();
     }
+    /*************************************************/
 
-    uint16_t getStringWidth(const char *text, uint16_t length);
-    void inline drawInternal(int16_t x, int16_t y, uint8_t width, uint8_t height, const uint8_t *data, uint16_t offset, uint16_t sizeOfChar);
-    void drawStringInternal(int16_t x, int16_t y, const char *text, uint8_t textLength, uint8_t textWidth);
+
+    void drawChar(uint8_t &x, uint8_t &y, char charToDraw, bool printfMode = false);
 
   public:
 
@@ -122,12 +134,13 @@ private:
     void Init(gpio_num_t SCL_pinNum, gpio_num_t SDA_pinNum, gpio_num_t RST_pinNum, uint8_t address = 0x78);
 
     /**
-     * @brief: clear screen;
-     * @param: [update]: optional parameter.
-     *    true(default): clear GRAM and refresh screen;
-     *            false: clear GRAM only.
+     * @brief clear screen;
+     * @param [update]: optional parameter.
+     *                  true(default): clear GRAM and refresh screen;
+     *                  false: clear GRAM only.
      * */
     void clear(bool update = true);
+    void clear(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_end, bool update = true);
 
     //default screen refresh function. 
     void Refresh();
@@ -203,12 +216,14 @@ private:
     // draw a filled circle or use this circle to realise clear or inverse a specified area.
     void drawFilledCircle(int16_t x0, int16_t y0, uint8_t radius, drawMode mode = NORMAL, bool update = true);
 
-
     // Basic test operations
     void setFont(const uint8_t *fontData);
-    void drawString(int16_t x, int16_t y, char *usrStr, bool update = true);
-    void drawFastImage(int16_t x, int16_t y, uint8_t width, uint8_t height, const uint8_t *image, bool update = true);
+    void drawString(uint8_t x, uint8_t y, const char *usrStr, bool update = true);
     void printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
+    void printfClear();
+    void setPrintfArea(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_end);
+
+    void drawImage(int16_t x, int16_t y, uint8_t width, uint8_t height, const uint8_t *image, bool update = true);
 };
 
 #endif
