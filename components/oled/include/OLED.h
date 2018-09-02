@@ -125,7 +125,12 @@ private:
      * */
     enum drawMode { NORMAL, CLEAR, INVERSE };
     
-    // default constructor function, you must provide parameters to canstructor init the class;
+    /**
+     * @brief default constructor function, \
+     *        initlized GrAM(display buffer), \
+     *                  printfStruct(which specified the screen area that printf function used)
+     *                  and some varible about font.
+     * */
     I2C_OLED();
 
     ~I2C_OLED();
@@ -135,8 +140,7 @@ private:
 
     /**
      * @brief clear screen;
-     * @param [update]: optional parameter.
-     *                  true(default): clear GRAM and refresh screen;
+     * @param [update]: true(default): clear GRAM and refresh screen right now;
      *                  false: clear GRAM only.
      * */
     void clear(bool update = true);
@@ -146,19 +150,21 @@ private:
     void Refresh();
 
     /**
-     * @brief: overloaded refresh function, 
+     * @brief  overloaded refresh function, 
      *         refresh the specified area from (x_start, y_start) to (x_end, y_end);
-     * @param:   x_start: >=0 and <=127;
-     * @param:     x_end: >=x_start and <=127;
-     * @param:   y_start: >=0 and <=63;
-     * @param:     y_end: >= y_start and <=63;
+     * @param   x_start: >=0 and <=127;
+     * @param     x_end: >=x_start and <=127;
+     * @param   y_start: >=0 and <=63;
+     * @param     y_end: >= y_start and <=63;
      **/
     void Refresh(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_end);
 
-    // you can use this function to change buffer.GRAM
+    // you can use this function to change GRAM
     void setBuffer(uint8_t * pBuffer);
-    // reset the buffer.GRAM to internal buffer
+
+    // reset the GRAM to default
     void resetBuffer();
+
 
     /******      Basic Display Control Function      ******/
     void turnOnScreen();    // turn on the screen;
@@ -176,7 +182,6 @@ private:
     void setUncoloredPixel(uint8_t x, uint8_t y);   // turn off a pixal;
     void setInversePixel(uint8_t x, uint8_t y);     // inverse a pixel;
 
-    // Draw baxic Geometric patterns
     /**
      * @brief: Draw a line from position(x0,y0) to position (x1,y1);
      * @param: update: 
@@ -190,8 +195,8 @@ private:
      * @brief: Draw a horizontal line.
      * @param:    x,y: start point (x,y);
      * @param: length: length of the line;
-     * @param: update: it must be "true", just leave it;
-     * @param:   mode: it can be NORMAL, CLEAR, INVERSE, just leave it;
+     * @param: update: it must be "true" when you use it to draw a HorizontalLine;
+     * @param:   mode: it can be NORMAL, CLEAR, INVERSE;
      * */
     void drawHorizontalLine(int16_t x, int16_t y, uint8_t length, bool update = true, drawMode mode = NORMAL);
 
@@ -216,13 +221,28 @@ private:
     // draw a filled circle or use this circle to realise clear or inverse a specified area.
     void drawFilledCircle(int16_t x0, int16_t y0, uint8_t radius, drawMode mode = NORMAL, bool update = true);
 
-    // Basic test operations
+
+    /******       Basic test operations       ******/
     void setFont(const uint8_t *fontData);
+
+    /**
+     * @brief  draw srting from (x, y)
+     * @attention  this function can not auto wrap, but you can use '\n' to wrap the line.
+     * */ 
     void drawString(uint8_t x, uint8_t y, const char *usrStr, bool update = true);
-    void printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
-    void printfClear();
+    
+    /**
+     * @brief set the screen area that printf function used.
+     * */
     void setPrintfArea(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_end);
 
+    // this function realizd basic "printf", you can "%d", "%f", "%c", "%s"
+    void printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
+
+    // clear printfClear and reset cursor
+    void printfClear();
+
+    /******      Draw image      ******/
     void drawImage(int16_t x, int16_t y, uint8_t width, uint8_t height, const uint8_t *image, bool update = true);
 };
 
