@@ -3,3 +3,5 @@ build
 
 ## Files
 sdkconfig
+sdkconfig.old
+main
