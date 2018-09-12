@@ -185,8 +185,8 @@ class OLED
      * */
     void setPrintfArea(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_end);
 
-    // this function realizd basic "printf", you can use "%d", "%f", "%c", "%s"
-    void printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
+
+    int printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
 
     // clear printfClear and reset cursor
     void printfClear();

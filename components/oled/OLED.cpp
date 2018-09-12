@@ -1,5 +1,6 @@
-#include <stdlib.h>
+#include <stdio.h>
 #include <stdarg.h>
+#include "esp_log.h"
 #include "OLED.h"
 
 OLED::OLED()
@@ -393,7 +394,6 @@ void OLED::setFont(const uint8_t *fontData)
 
 void OLED::drawChar(uint8_t &x, uint8_t &y, char charToDraw, bool printfMode)
 {
-static uint16_t idx = 0;
     if (charToDraw < firstChar || charToDraw >= firstChar + charNum) {
         if (charToDraw == '\n' && printfMode) {
             x = printfStruct.x_start;
@@ -457,12 +457,19 @@ static uint16_t idx = 0;
         if (dataPos < 1024 && xPos < area_xend)
         {
             buffer.GRAM[dataPos] |= currentByte << yOffset;
-            if ((yPos * 8 + 8) < area_yend && (dataPos + OLED_WIDTH) < 1024)
+            if ((yPos * 8 + 8) < area_yend ){
+/********* for debug ***********/
+if(dataPos + OLED_WIDTH >= 1024){
+    ESP_LOGE("OLED::printf()","index out of boundary");
+    x += currentCharWidth;
+    return;
+}
+/********* for debug ***********/
                 buffer.GRAM[dataPos + OLED_WIDTH] |= currentByte >> (8 - yOffset);
+            }
         }
     }
     x += currentCharWidth;
-    idx++;
 }
 
 void OLED::drawString(uint8_t x, uint8_t y, const char *usrStr)
@@ -487,67 +494,19 @@ void OLED::drawString(uint8_t x, uint8_t y, const char *usrStr)
     Refresh();
 }
 
-void OLED::printf(const char *format, ...)
+int OLED::printf(const char *format, ...)
 {
-    char strBuffer[17];
+    int length = 0;
+    char strBuffer[100];
     uint8_t initY = printfStruct.y_cursor;
+
     va_list ap;
     va_start(ap, format);
-    while (*format)
-    {
-        if (*format != '%'){
-            drawChar(printfStruct.x_cursor, printfStruct.y_cursor, *format, true);
-            format++;
-        }
-        else {
-            format++;
-            switch (*format)
-            {
-            case 'c': {
-                char val_ch = va_arg(ap, int);
-                drawChar(printfStruct.x_cursor, printfStruct.y_cursor, val_ch, true);
-                format++;
-            } break;
 
-            case 'd': {
-                int val_int = va_arg(ap, int);
-                itoa(val_int, strBuffer, 10);
-                char *str = &strBuffer[0];
-                while (*str) {
-                    drawChar(printfStruct.x_cursor, printfStruct.y_cursor, *str, true);
-                    str++;
-                }
-                format++;
-            } break;
-
-            case 's': {
-                char *val_str = va_arg(ap, char *);
-                while (*val_str) {
-                    drawChar(printfStruct.x_cursor, printfStruct.y_cursor, *val_str, true);
-                    val_str++;
-                }
-                format++;
-            } break;
-
-            case 'f': {
-                float val_flt = va_arg(ap, double);
-                gcvt(val_flt, 6, strBuffer);
-                char *str = &strBuffer[0];
-                while (*str) {
-                    drawChar(printfStruct.x_cursor, printfStruct.y_cursor, *str, true);
-                    str++;
-                }
-                format++;
-            } break;
-
-            default: {
-                drawChar(printfStruct.x_cursor, printfStruct.y_cursor, *format, true);
-                format++;
-                } break;
-            }
-        }
-    }
-    va_end(ap);
+    length = vsprintf(strBuffer, format, ap);
+    for(int i=0; i<length; i++)
+        drawChar(printfStruct.x_cursor, printfStruct.y_cursor, strBuffer[i], true);
+    
     buffer.column_start = printfStruct.x_start;
     buffer.column_end = printfStruct.x_end;
 
@@ -559,6 +518,7 @@ void OLED::printf(const char *format, ...)
         buffer.row_end = printfStruct.y_end;     
     }
     Refresh();
+    return length;
 }
 
 void OLED::printfClear()
