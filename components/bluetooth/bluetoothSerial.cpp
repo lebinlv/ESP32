@@ -122,14 +122,9 @@ static bool _stop_bt_spp()
     return true;
 }
 
-/*
- * Serial Bluetooth Arduino
- *
- * */
-
 BluetoothSerial::BluetoothSerial()
 {
-    local_name = "ESP32"; //default bluetooth name
+
 }
 
 BluetoothSerial::~BluetoothSerial(void)
@@ -138,12 +133,9 @@ BluetoothSerial::~BluetoothSerial(void)
     vQueueDelete(_spp_queue);
 }
 
-bool BluetoothSerial::begin(std::string localName)
+bool BluetoothSerial::begin(const char *localName)
 {
-    if (localName.length()){
-        local_name = localName;
-    }
-    return _init_bt_spp(local_name.c_str());
+    return _init_bt_spp(localName);
 }
 
 int BluetoothSerial::available(void)
