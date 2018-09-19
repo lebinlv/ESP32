@@ -3,6 +3,8 @@
 #include "esp_log.h"
 #include "OLED.h"
 
+#define PRINTF_BUFFER_SIZE 64
+
 OLED::OLED()
 {
     buffer.GRAM = new uint8_t [1024];  // 1024 = OLED_WIDTH*OLED_HEIGHT/8
@@ -497,12 +499,12 @@ void OLED::drawString(uint8_t x, uint8_t y, const char *usrStr)
 int OLED::printf(const char *format, ...)
 {
     int length = 0;
-    char strBuffer[100];
     uint8_t initY = printfStruct.y_cursor;
 
     va_list ap;
     va_start(ap, format);
 
+    char strBuffer[PRINTF_BUFFER_SIZE];
     length = vsprintf(strBuffer, format, ap);
     for(int i=0; i<length; i++)
         drawChar(printfStruct.x_cursor, printfStruct.y_cursor, strBuffer[i], true);
