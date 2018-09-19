@@ -6,17 +6,19 @@
 #include "freertos/task.h"
 
 #include "bluetooth_generic.h"
-#include "bluetoothSerial.h"
 
 #include "esp_gap_bt_api.h"
 #include "esp_bt_device.h"
-#include "esp_spp_api.h"
+#include "bluetoothSerial.h"
+
 #include "esp_log.h"
 
+
+#define PRINTF_BUFFER_SIZE 128
 #define QUEUE_SIZE 256
 
 const char * _spp_server_name = "ESP32_SPP_SERVER";
-static uint32_t _spp_client = 0;
+static uint8_t _spp_client = 0;
 static xQueueHandle _spp_queue = NULL;
 
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
@@ -46,7 +48,7 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
         break;
     case ESP_SPP_DATA_IND_EVT://connection received data
         ESP_LOGI("SPP", "ESP_SPP_DATA_IND_EVT len=%d handle=%d", param->data_ind.len, param->data_ind.handle);
-        
+
         if (_spp_queue != NULL){
             for (int i = 0; i < param->data_ind.len; i++)
                 xQueueSend(_spp_queue, param->data_ind.data + i, (TickType_t)0);
@@ -155,50 +157,40 @@ int BluetoothSerial::peek(void)
     return -1;
 }
 
-bool BluetoothSerial::hasClient(void)
+size_t BluetoothSerial::hasClient(void)
 {
-    if (_spp_client)
-        return true;
-	
-    return false;
+    return _spp_client;
 }
 
 char BluetoothSerial::read(void)
 {
-    if (available()){
-        if (!_spp_client || _spp_queue == NULL){
-            return 0;
-        }
-
-        char c;
-        if (xQueueReceive(_spp_queue, &c, 0)){
-            return c;
-        }
+    char c;
+    if (xQueueReceive(_spp_queue, &c, 0)){
+        return c;
     }
     return 0;
 }
 
 size_t BluetoothSerial::write(uint8_t c)
 {
-    if (!_spp_client){
-        return 0;
+    if (_spp_client){
+        // uint8_t buffer[1];
+        // buffer[0] = c;
+        esp_err_t err = esp_spp_write(_spp_client, 1, &c);
+        return (err == ESP_OK) ? 1 : 0;
     }
-
-    uint8_t buffer[1];
-    buffer[0] = c;
-    esp_err_t err = esp_spp_write(_spp_client, 1, buffer);
-    return (err == ESP_OK) ? 1 : 0;
+    return 0;
 }
 
 size_t BluetoothSerial::write(const char *buffer, size_t size)
 {
-    if (!_spp_client){
-        return 0;
+    if (_spp_client){
+        esp_err_t err = esp_spp_write(_spp_client, size, (uint8_t *)buffer);
+        return (err == ESP_OK) ? size : 0;
     }
-
-    esp_err_t err = esp_spp_write(_spp_client, size, (uint8_t *)buffer);
-    return (err == ESP_OK) ? size : 0;
+    return 0;
 }
+
 
 void BluetoothSerial::flush()
 {
@@ -209,10 +201,29 @@ void BluetoothSerial::flush()
     }
 }
 
-void BluetoothSerial::end()
+bool BluetoothSerial::end()
 {
-    _stop_bt_spp();
-    vQueueDelete(_spp_queue);
+    if(_stop_bt_spp()) {
+        vQueueDelete(_spp_queue);
+        return true;
+    }
+    return false;
+}
+
+static char printfBuffer[PRINTF_BUFFER_SIZE];
+int BluetoothSerial::printf(char * format, ...)
+{
+    if (_spp_client) {
+        va_list ap;
+        va_start(ap, format);
+
+        int len = vsprintf(printfBuffer, format, ap);
+
+        esp_err_t err = esp_spp_write(_spp_client, len, (uint8_t *)printfBuffer);
+
+        return (err == ESP_OK) ? len : 0;
+    }
+    return 0;
 }
 
 #endif

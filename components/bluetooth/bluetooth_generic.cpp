@@ -47,6 +47,7 @@ bool stopBtController()
         _bt_controller_enabled = false;
     }
 
+    // esp_bt_controller_init cannot called after this function.
     // if(_bt_controller_initd) {
     //     if((ret = esp_bt_controller_deinit()) != ESP_OK) {
     //         ESP_LOGE("TAG", "%s(), bt controller deinit failed: %s\n", __func__, esp_err_to_name(ret));
