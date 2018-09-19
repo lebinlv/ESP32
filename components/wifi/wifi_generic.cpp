@@ -351,7 +351,7 @@ esp_err_t WIFIGenericClass::_wifiEventCallback(void *arg, system_event_t *event)
         wifiEventCbList_t entry = eventCbFuncList[i];
         if (entry.cbFunc)
         {
-            if (entry.event_id == event->event_id || entry.event_id == SYSTEM_EVENT_MAX)
+            if (entry.event_id == SYSTEM_EVENT_MAX || entry.event_id == event->event_id)
                 entry.cbFunc(event);
         }
     }
