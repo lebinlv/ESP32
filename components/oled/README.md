@@ -4,8 +4,8 @@
 
 ## Source File
 
-- [header file](https://github.com/lebinlv/ESP32/blob/master/components/oled/include/OLED.h)
-- [source file](https://github.com/lebinlv/ESP32/blob/master/components/oled/OLED.cpp)
+- [header file](https://github.com/lebinlv/ESP32/blob/master/components/oled/include/)
+- [source file](https://github.com/lebinlv/ESP32/blob/master/components/oled/)
 
 ## Basic
 
@@ -139,7 +139,7 @@ void drawString(uint8_t x, uint8_t y, const char *usrStr, bool update = true);
     * */
 void setPrintfArea(uint8_t x_start, uint8_t x_end, uint8_t y_start, uint8_t y_end);
 
-// this function realizd basic "printf", you can "%d", "%f", "%c", "%s"
+// oled.printf has a buffer size that is restricted by PRINTF_BUFFER_SIZE in OLED.cpp
 void printf(const char *format, ...) __attribute__((format(printf, 2, 3)));
 
 // clear printf area and reset cursor
