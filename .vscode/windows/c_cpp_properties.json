@@ -94,12 +94,13 @@
                 "${IDF_PATH}/components/wpa_supplicant/port/include",
                 "${XTENSA_ESP32_ELF_PATH}/xtensa-esp32-elf/include",
                 "${XTENSA_ESP32_ELF_PATH}/xtensa-esp32-elf/include/c++/5.2.0",
+                "${XTENSA_ESP32_ELF_PATH}/lib/gcc/xtensa-esp32-elf/5.2.0/include",
+                "${XTENSA_ESP32_ELF_PATH}/lib/gcc/xtensa-esp32-elf/5.2.0/include-fixed",
                 "${XTENSA_ESP32_ELF_PATH}/xtensa-esp32-elf/include/c++/5.2.0/xtensa-esp32-elf",
                 "${workspaceFolder}/build/include",
                 "${workspaceFolder}/components/oled/include",
                 "${workspaceFolder}/components/wifi/include",
-                "${workspaceFolder}/components/bluetooth/include",
-                ""
+                "${workspaceFolder}/components/bluetooth/include"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",

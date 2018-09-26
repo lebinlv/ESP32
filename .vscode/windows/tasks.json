@@ -13,7 +13,7 @@
                 "app"
             ],
             "presentation": {
-                "reveal": "always",
+                "reveal": "always"
             },
             "problemMatcher": {
                 "owner": "cpp",
@@ -34,11 +34,11 @@
             "type": "shell",
             "args": [
                 "-j4",
-                "clean"
+                "app-clean"
             ],
             "presentation": {
-                "reveal": "always",
-            },
+                "reveal": "always"
+            }
         },
         {
             "label": "Flash",
@@ -49,44 +49,49 @@
                 "app-flash"
             ],
             "presentation": {
-                "reveal": "always",
-            },
+                "reveal": "always"
+            }
         },
         {
             "label": "Flash-Monitor",
-            "type":"shell",
-			"command": "make",
-			"args": [
+            "command": "make",
+            "type": "shell",
+            "args": [
                 "-j4",
                 "app-flash",
                 "monitor"
-			],                    
+            ],
             "presentation": {
-                "reveal": "always",
+                "reveal": "always"
             },
-            "problemMatcher": []            
+            "problemMatcher": []
         },
         {
             "label": "Monitor",
-            "type":"shell",
-			"command": "make",
-			"args": [
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "-j4",
                 "monitor"
-			],                    
+            ],
             "presentation": {
-                "reveal": "always",
+                "reveal": "always"
             },
-            "problemMatcher": []            
+            "problemMatcher": []
         },
         {
-            "label": "Menuconfig",
-            "type":"shell",
-			"command": "make",
-			"args": [
-				"menuconfig"
-			],
-			"presentation": {
-                "reveal": "always",
+            "label": "menuconfig",
+            "type": "process",
+            "windows": {
+                "command": "C:/msys32/mingw32.exe",
+                "args": [
+                    "make",
+                    "-j4",
+                    "menuconfig"
+                ]
+            },
+            "presentation": {
+                "reveal": "always"
             },
             "problemMatcher": []
         }
