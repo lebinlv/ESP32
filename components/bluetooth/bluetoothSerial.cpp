@@ -20,6 +20,7 @@
 const char * _spp_server_name = "ESP32_SPP_SERVER";
 static uint8_t _spp_client = 0;
 static xQueueHandle _spp_queue = NULL;
+static esp_spp_cb_fun_t usr_spp_cb_fun = NULL;
 
 static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
 {
@@ -69,6 +70,8 @@ static void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param)
     default:
         break;
     }
+
+    if(usr_spp_cb_fun) usr_spp_cb_fun(event);
 }
 
 
@@ -124,9 +127,10 @@ static bool _stop_bt_spp()
     return true;
 }
 
+
 BluetoothSerial::BluetoothSerial()
 {
-
+    usr_spp_cb_fun = NULL;
 }
 
 BluetoothSerial::~BluetoothSerial(void)
@@ -140,7 +144,7 @@ bool BluetoothSerial::begin(const char *localName)
     return _init_bt_spp(localName);
 }
 
-int BluetoothSerial::available(void)
+size_t BluetoothSerial::available(void)
 {
     if (!_spp_client || _spp_queue == NULL){
         return 0;
@@ -148,7 +152,7 @@ int BluetoothSerial::available(void)
     return uxQueueMessagesWaiting(_spp_queue);
 }
 
-int BluetoothSerial::peek(void)
+size_t BluetoothSerial::peek(void)
 {
     uint8_t c;
     if (xQueuePeek(_spp_queue, &c, 0)){
@@ -192,13 +196,21 @@ size_t BluetoothSerial::write(const char *buffer, size_t size)
 }
 
 
-void BluetoothSerial::flush()
+size_t BluetoothSerial::flush()
 {
     if (_spp_client){
-        int qsize = available();
-        uint8_t buffer[qsize];
-        esp_spp_write(_spp_client, qsize, buffer);
+        //int qsize = available();
+        //uint8_t buffer[qsize];
+        //esp_spp_write(_spp_client, qsize, buffer);
+        char temp;
+        size_t count = 0;
+        for (; count < available(); count++)
+        {
+            xQueueReceive(_spp_queue, &temp, 0);
+        }
+        return count;
     }
+    return 0;
 }
 
 bool BluetoothSerial::end()
@@ -224,6 +236,11 @@ int BluetoothSerial::printf(char * format, ...)
         return (err == ESP_OK) ? len : 0;
     }
     return 0;
+}
+
+void BluetoothSerial::addSppCbFun(esp_spp_cb_fun_t usr_fun)
+{
+    usr_spp_cb_fun = usr_fun;
 }
 
 #endif
