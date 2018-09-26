@@ -1,0 +1,94 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build",
+            "group": "build",
+            "command": "make",
+            "type": "shell",
+            "args": [
+                "-j4",
+                "app"
+            ],
+            "presentation": {
+                "reveal": "always",
+            },
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": "absolute",
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "label": "Clean",
+            "command": "make",
+            "type": "shell",
+            "args": [
+                "-j4",
+                "clean"
+            ],
+            "presentation": {
+                "reveal": "always",
+            },
+        },
+        {
+            "label": "Flash",
+            "command": "make",
+            "type": "shell",
+            "args": [
+                "-j4",
+                "app-flash"
+            ],
+            "presentation": {
+                "reveal": "always",
+            },
+        },
+        {
+            "label": "Flash-Monitor",
+            "type":"shell",
+			"command": "make",
+			"args": [
+                "-j4",
+                "app-flash",
+                "monitor"
+			],                    
+            "presentation": {
+                "reveal": "always",
+            },
+            "problemMatcher": []            
+        },
+        {
+            "label": "Monitor",
+            "type":"shell",
+			"command": "make",
+			"args": [
+                "monitor"
+			],                    
+            "presentation": {
+                "reveal": "always",
+            },
+            "problemMatcher": []            
+        },
+        {
+            "label": "Menuconfig",
+            "type":"shell",
+			"command": "make",
+			"args": [
+				"menuconfig"
+			],
+			"presentation": {
+                "reveal": "always",
+            },
+            "problemMatcher": []
+        }
+    ]
+}
